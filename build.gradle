@@ -1,0 +1,56 @@
+group 'conduit'
+version '1.0-SNAPSHOT'
+
+buildscript {
+    ext.reactor_netty_version = '0.7.0.M1'
+    ext.reactor_version = '3.1.0.M3'
+    ext.slf4j_version = '1.7.25'
+    
+    ext.jackson_version = '2.9.0'
+    
+    ext.jsr305_version = '3.0.0'
+    
+    ext.junit_version = '4.12'
+    ext.mockito_version = '2.8.47'
+}
+
+apply plugin: 'java'
+
+sourceCompatibility = 1.8
+
+repositories {
+    jcenter()
+    maven { url 'http://repo.spring.io/milestone' }
+}
+
+dependencies {
+    compileOnly "com.google.code.findbugs:jsr305:$jsr305_version"
+    
+    compile "org.slf4j:slf4j-api:$slf4j_version"
+    compile "io.projectreactor.ipc:reactor-netty:$reactor_netty_version"
+    compile "io.projectreactor.addons:reactor-extra:$reactor_version"
+    compile "com.fasterxml.jackson.module:jackson-module-afterburner:$jackson_version"
+    
+    testCompile "junit:junit:$junit_version"
+    testCompile "org.slf4j:slf4j-simple:$slf4j_version"
+    testCompile "org.mockito:mockito-core:$mockito_version"
+}
+
+task sourcesJar(type: Jar, dependsOn: classes) {
+    classifier = 'sources'
+    from sourceSets.main.allSource
+}
+
+task javadocJar(type: Jar, dependsOn: javadoc) {
+    classifier = 'javadoc'
+    from javadoc.destinationDir
+}
+
+javadoc {
+    failOnError false
+}
+
+artifacts {
+    archives sourcesJar
+    archives javadocJar
+}
