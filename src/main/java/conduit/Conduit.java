@@ -29,18 +29,24 @@ public class Conduit {
 	
 	//TODO the rest of the methods
 	
+	private <I, O> Mono<HttpResponse<O>> request(String path, 
+	                                             Function<? super HttpRequestBuilder<byte[], byte[]>, HttpRequestBuilder<I, O>> handler, 
+	                                             RequestMethod method) {
+		if (path.startsWith("/"))
+			path = path.substring(1, path.length());
+		
+		return Mono.just(connector.createRequestBuilder(this, baseUri + path, method))
+				.map(handler)
+				.map(HttpRequestBuilder::build)
+				.flatMap(r -> connector.submitRequest(this, r));
+	}
+	
 	public Mono<HttpResponse<byte[]>> get(String path) {
 		return get(path, req -> req);
 	}
 	
 	public <I, O> Mono<HttpResponse<O>> get(String path, Function<? super HttpRequestBuilder<byte[], byte[]>, HttpRequestBuilder<I, O>> handler) {
-		if (path.startsWith("/"))
-			path = path.substring(1, path.length());
-		
-		return Mono.just(connector.createRequestBuilder(this, baseUri + path, RequestMethod.GET))
-				.map(handler)
-				.map(HttpRequestBuilder::build)
-				.flatMap(r -> connector.submitRequest(this, r));
+		return request(path, handler, RequestMethod.GET);
 	}
 	
 	public Mono<HttpResponse<byte[]>> post(String path) {
@@ -48,13 +54,7 @@ public class Conduit {
 	}
 	
 	public <I, O> Mono<HttpResponse<O>> post(String path, Function<? super HttpRequestBuilder<byte[], byte[]>, HttpRequestBuilder<I, O>> handler) {
-		if (path.startsWith("/"))
-			path = path.substring(1, path.length());
-		
-		return Mono.just(connector.createRequestBuilder(this, baseUri + path, RequestMethod.GET))
-				.map(handler)
-				.map(HttpRequestBuilder::build)
-				.flatMap(r -> connector.submitRequest(this, r));
+		return request(path, handler, RequestMethod.POST);
 	}
 	
 	public Mono<HttpResponse<byte[]>> put(String path) {
@@ -62,13 +62,7 @@ public class Conduit {
 	}
 	
 	public <I, O> Mono<HttpResponse<O>> put(String path, Function<? super HttpRequestBuilder<byte[], byte[]>, HttpRequestBuilder<I, O>> handler) {
-		if (path.startsWith("/"))
-			path = path.substring(1, path.length());
-		
-		return Mono.just(connector.createRequestBuilder(this, baseUri + path, RequestMethod.GET))
-				.map(handler)
-				.map(HttpRequestBuilder::build)
-				.flatMap(r -> connector.submitRequest(this, r));
+		return request(path, handler, RequestMethod.PUT);
 	}
 	
 	public Mono<HttpResponse<byte[]>> delete(String path) {
@@ -76,13 +70,7 @@ public class Conduit {
 	}
 	
 	public <I, O> Mono<HttpResponse<O>> delete(String path, Function<? super HttpRequestBuilder<byte[], byte[]>, HttpRequestBuilder<I, O>> handler) {
-		if (path.startsWith("/"))
-			path = path.substring(1, path.length());
-		
-		return Mono.just(connector.createRequestBuilder(this, baseUri + path, RequestMethod.GET))
-				.map(handler)
-				.map(HttpRequestBuilder::build)
-				.flatMap(r -> connector.submitRequest(this, r));
+		return request(path, handler, RequestMethod.DELETE);
 	}
 	
 	public Mono<WebsocketConnection> ws() {

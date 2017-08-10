@@ -12,6 +12,5 @@ public class Test {
 			.setPacketData(new byte[]{1, 3, 3, 7})).subscribe(r -> {
 			byte[] data = r.getResponseData();
 		});
-		String.jo
 	}
 }
